@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>机房管理系统 - 登录</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-light">
+    <div class="container">
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h3>机房管理系统</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="login-error" class="alert alert-danger d-none" role="alert"></div>
+                        <form id="login-form">
+                            <div class="mb-3">
+                                <label for="code" class="form-label">学号/工号</label>
+                                <input type="text" class="form-control" id="code" name="code" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">密码</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">登录</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer text-center">
+                        <p class="mb-0">© 2025 机房管理系统</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const code = document.getElementById('code').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('login-error');
+            
+            // 清除之前的错误信息
+            errorDiv.classList.add('d-none');
+            
+            // 发送登录请求
+            axios.post('/api/auth/login', {
+                code: code,
+                password: password
+            })
+            .then(function(response) {
+                if (response.data.status === 'success') {
+                    // 登录成功，跳转到首页
+                    window.location.href = '/';
+                } else {
+                    // 显示错误信息
+                    errorDiv.textContent = response.data.message || '登录失败';
+                    errorDiv.classList.remove('d-none');
+                }
+            })
+            .catch(function(error) {
+                // 显示错误信息
+                if (error.response && error.response.data) {
+                    errorDiv.textContent = error.response.data.message || '登录失败';
+                } else {
+                    errorDiv.textContent = '网络错误，请稍后重试';
+                }
+                errorDiv.classList.remove('d-none');
+            });
+        });
+    </script>
+</body>
+</html>
