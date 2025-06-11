@@ -6,7 +6,7 @@
 """
 
 import os
-import sys
+import sy
 
 # 将项目根目录添加到sys.path
 project_root = os.path.abspath(os.path.dirname(__file__))
