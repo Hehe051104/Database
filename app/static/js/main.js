@@ -309,9 +309,9 @@ function loadDevicesData() {
           html += `
                     <tr>
                         <td>${device.did}</td>
-                        <td>${device.name}</td>
+                        <td>${device.dname}</td>
                         <td>${device.type}</td>
-                        <td>${device.room_location || "未分配"}</td>
+                        <td>${device.location || "未分配"}</td>
                         <td><span class="badge ${statusClass} text-white">${device.status}</span></td>
                         <td>
                             <button class="btn btn-sm btn-info" onclick="viewDevice(${device.did})">
@@ -353,15 +353,15 @@ function openDeviceModal(did = null) {
             <input type="hidden" id="device-id" value="${did || ''}">
             <div class="mb-3">
                 <label for="device-name" class="form-label">设备名称</label>
-                <input type="text" class="form-control" id="device-name" required>
+                <input type="text" class="form-control" id="device-dname" required>
             </div>
             <div class="mb-3">
                 <label for="device-type" class="form-label">设备类型</label>
                 <input type="text" class="form-control" id="device-type" required>
             </div>
             <div class="mb-3">
-                <label for="device-rid" class="form-label">所在机房</label>
-                <select class="form-select" id="device-rid">
+                <label for="device-room_id" class="form-label">所在机房</label>
+                <select class="form-select" id="device-room_id">
                     <option value="">请选择机房</option>
                     <!-- 机房选项将动态加载 -->
                 </select>
@@ -378,7 +378,7 @@ function openDeviceModal(did = null) {
     `;
 
   // 加载机房选项
-  const roomSelect = document.getElementById("device-rid");
+  const roomSelect = document.getElementById("device-room_id");
   axios.get("/api/rooms").then(response => {
       if (response.data.status === 'success') {
           response.data.rooms.forEach(room => {
@@ -392,9 +392,9 @@ function openDeviceModal(did = null) {
     axios.get(`/api/devices/${did}`).then(response => {
         if (response.data.status === 'success') {
             const device = response.data.device;
-            document.getElementById('device-name').value = device.name;
+            document.getElementById('device-dname').value = device.dname;
             document.getElementById('device-type').value = device.type;
-            document.getElementById('device-rid').value = device.rid || '';
+            document.getElementById('device-room_id').value = device.room_id || '';
             document.getElementById('device-status').value = device.status;
         }
     });
@@ -410,9 +410,9 @@ function openDeviceModal(did = null) {
 
 // 提交设备表单
 function submitDeviceForm(did) {
-  const deviceName = document.getElementById("device-name").value;
+  const deviceName = document.getElementById("device-dname").value;
   const deviceType = document.getElementById("device-type").value;
-  const roomId = document.getElementById("device-rid").value;
+  const roomId = document.getElementById("device-room_id").value;
   const deviceStatus = document.getElementById("device-status").value;
 
   // 如果未选择机房 (假设其值为 ""), 则发送 null，否则发送所选值
@@ -763,7 +763,7 @@ function openReservationModal() {
   axios.get("/api/devices?status=空闲").then(response => {
       if (response.data.status === 'success') {
           response.data.devices.forEach(device => {
-              deviceSelect.innerHTML += `<option value="${device.did}">${device.name} (${device.type})</option>`;
+              deviceSelect.innerHTML += `<option value="${device.did}">${device.dname} (${device.type})</option>`;
           });
       }
   });
@@ -941,7 +941,7 @@ function openMaintenanceModal() {
   axios.get("/api/devices/details").then(response => {
       if (response.data.status === 'success') {
           response.data.device_details.forEach(device => {
-              deviceSelect.innerHTML += `<option value="${device.did}">${device.name} (${device.type}) - ${device.room_location || '未分配'}</option>`;
+              deviceSelect.innerHTML += `<option value="${device.did}">${device.dname} (${device.type}) - ${device.location || '未分配'}</option>`;
           });
       }
   });
@@ -1242,7 +1242,7 @@ function loadStatisticsData() {
             } else {
                 res.data.device_usage_stats.forEach(item => {
                     const deviceName = item.dname || '未知设备';
-                    const usageCount = Number(item.total_reservations) || 0;
+                    const usageCount = Number(item.reservation_count) || 0;
                     const totalHours = Number(item.total_hours_used) || 0;
                     html += `<li class="list-group-item d-flex justify-content-between align-items-center">${deviceName} <span class="badge bg-primary rounded-pill">${usageCount}次 / ${totalHours.toFixed(1)}小时</span></li>`;
                 });
@@ -1268,7 +1268,7 @@ function loadStatisticsData() {
             } else {
                 res.data.room_usage_stats.forEach(item => {
                     const roomLocation = item.location || '未知机房';
-                    const usageCount = Number(item.total_reservations) || 0;
+                    const usageCount = Number(item.reservation_count) || 0;
                     const uniqueUsers = Number(item.unique_users) || 0;
                     html += `<li class="list-group-item d-flex justify-content-between align-items-center">${roomLocation} <span class="badge bg-info rounded-pill">${usageCount}次预约 / ${uniqueUsers}独立用户</span></li>`;
                 });
@@ -1294,7 +1294,7 @@ function loadStatisticsData() {
             } else {
                 res.data.user_role_stats.forEach(item => {
                     const role = item.role || '未知角色';
-                    const usageCount = Number(item.total_reservations) || 0;
+                    const usageCount = Number(item.reservation_count) || 0;
                     const avgHours = Number(item.avg_hours) || 0;
                     html += `<li class="list-group-item d-flex justify-content-between align-items-center">${role} <span class="badge bg-warning rounded-pill">${usageCount}次预约 / 平均${avgHours.toFixed(1)}小时</span></li>`;
                 });
